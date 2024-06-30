@@ -1,0 +1,18 @@
+{
+  "name": "testproject",
+  "version": "1.0.0",
+  "description": "",
+  "main": "categorizeSite.js", 
+  "type": "module", 
+  "scripts": {
+    "start": "node categorizeSite.js", 
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "node-fetch": "^3.3.2",
+    "openai": "^4.52.0"
+  }
+}
