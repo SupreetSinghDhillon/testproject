@@ -6,20 +6,26 @@ async function categorizeSiteUsingOpenAI(url, categories) {
     categories
   ).join(", ")}.`;
 
+  let summarizationPrompt = `Given the URL '${url}', summarize the content of the site.`;
+
   // API call to OpenAI using the chat-specific endpoint
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
-      Authorization: `Bearer {openai_api_key}`, // Replace with your actual API key
+      Authorization: `Bearer {api_key}`, // Replace with your actual API key
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
       model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: prompt }],
+      messages: [
+        { role: "user", content: prompt },
+        { role: "user", content: summarizationPrompt },
+      ], // Added summarization prompt
     }),
   });
 
   const data = await response.json();
+  console.log("OpenAI API Response:", JSON.stringify(data, null, 2)); // Optional: Added logging for debugging
   // console.log("OpenAI API Response:", JSON.stringify(data, null, 2)); // Added logging
 
   if (data.error) {
@@ -31,11 +37,15 @@ async function categorizeSiteUsingOpenAI(url, categories) {
     throw new Error("No choices returned from OpenAI.");
   }
 
-  return data.choices[0].message.content.trim();
+  // return data.choices[0].message.content.trim();
+  const category = data.choices[0].message.content.trim();
+  const summary = data.choices[1].message.content.trim();
+
+  return { category, summary };
 }
 
 // Example usage
-const url = "https://www.youtube.com/watch?v=YmGFMLncftE";
+const url = "https://loadminds.com";
 const categories2 = {
   articles: ["wikipedia", "etc"],
   lectures_and_demos: ["your-lecture-url-here"],
@@ -47,5 +57,8 @@ const categories2 = {
 };
 
 categorizeSiteUsingOpenAI(url, categories2)
-  .then((category) => console.log(`The category for the URL is: ${category}`))
-  .catch((error) => console.error("Error categorizing site:", error));
+  .then(({ category, summary }) => {
+    console.log(`The category for the URL is: ${category}`);
+    console.log(`Summary of the site content: ${summary}`);
+  })
+  .catch((error) => console.error("Error analyzing site:", error));
